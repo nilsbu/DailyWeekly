@@ -1,0 +1,3 @@
+AddType text/manifest .manifest
+AddType text/manifest .webmanifest
+AddType text/cache-manifest .appcache

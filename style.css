@@ -1,0 +1,10 @@
+body {
+  background: lightblue;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1 {
+  color: navy;
+  font:sans-serif;
+  margin-left: 20px;
+}
