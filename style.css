@@ -20,15 +20,19 @@ body {
   font-size: 18px;
 }
 
-.title {
+#title {
   text-align: center;
   font-size: 48px;
 }
 
-.task-list, .plus {
+#task-list, #plus {
   padding-left: 6px;
 }
 
-.plus {
+.task {
+  width=100%;
+}
+
+#plus {
   font-size: 24px;
 }

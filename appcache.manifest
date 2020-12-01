@@ -2,6 +2,7 @@ CACHE MANIFEST
 # v1 - 2011-08-13
 
 index.html
+script.js
 style.css
 manifest.webmanifest
 icons/icon-192.png
