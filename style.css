@@ -17,14 +17,18 @@ body {
   background: #600;
   color: white;
   font-family: Avenir;
+  font-size: 18px;
 }
 
 .title {
   text-align: center;
-  font-size: 80px;
+  font-size: 48px;
 }
 
-h1 {
-  text-align: center;
-  font-size: 80px;
+.task-list, .plus {
+  padding-left: 6px;
+}
+
+.plus {
+  font-size: 24px;
 }
