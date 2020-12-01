@@ -1,10 +1,30 @@
 body {
-  background: lightblue;
+  /* Disable text selection */
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+
+  /* Prevent scrolling */
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+  position: fixed;
+
+  background: #600;
+  color: white;
+  font-family: Avenir;
+}
+
+.title {
+  text-align: center;
+  font-size: 80px;
 }
 
 h1 {
-  color: navy;
-  font:sans-serif;
-  margin-left: 20px;
+  text-align: center;
+  font-size: 80px;
 }
