@@ -29,7 +29,7 @@ body {
   padding-left: 6px;
 }
 
-.task {
+.task, .task-done {
   width=100%;
 }
 
@@ -46,6 +46,11 @@ body {
     /* height:30px; */
     /* transition:height 1s; */
     /* -webkit-transition:height 1s; */
+}
+
+.task-done {
+  color: rgba(255, 255, 255, .5);
+  text-decoration: line-through;
 }
 
 #plus {
