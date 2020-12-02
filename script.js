@@ -23,6 +23,8 @@ function createTask() {
   task.removeChild(input);
   txt = document.createTextNode(input.value);
   task.appendChild(txt);
+
+  syncInterface();
   saveList();
 }
 
@@ -30,8 +32,27 @@ function finishTask(id) {
   taskList = document.getElementById("task-list");
   task = document.getElementById(id);
   task.setAttribute("class", "task-done");
+
+  syncInterface();
   saveList();
 }
+
+function syncInterface() {
+  let allTasksFinished = taskList.children.length > 0;
+  taskList = document.getElementById('task-list');
+  for (const child of taskList.children) {
+    if (!(child.getAttribute('class') === 'task-done')) {
+      allTasksFinished = false;
+    }
+  }
+
+  if (allTasksFinished) {
+    document.body.style.background = "var(--bg-done)";
+  } else {
+    document.body.style.background = "var(--bg-not-done)";
+  }
+}
+
 
 function loadLists(lists) {
   // TODO: use multiple lists
@@ -55,6 +76,8 @@ function loadLists(lists) {
     taskList.appendChild(newTask);
     newTask.setAttribute('onclick', `finishTask('${newTask.id}');`);
   }
+
+  syncInterface();
 }
 
 function saveList() {

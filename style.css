@@ -1,3 +1,8 @@
+:root {
+  --bg-done: #003400;
+  --bg-not-done: #410000;
+}
+
 body {
   /* Disable text selection */
   -webkit-tap-highlight-color: transparent;
@@ -14,7 +19,7 @@ body {
   width: 100%;
   position: fixed;
 
-  background: #600;
+  background: var(--bg-not-done);
   color: white;
   font-family: Avenir;
   font-size: 18px;
