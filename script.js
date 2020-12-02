@@ -149,16 +149,21 @@ class Lists {
     this.store.onload = ls => {this.load(ls); syncInterface()};
 
     const names = ['yesterday', 'today', 'tomorrow'];
-    let lists = [];
+    this.lists = {};
     for (const name of names) {
-      lists.push({'name': name, 'tasks': []});
+      this.lists[name] = [];
     }
-    this.lists = {'lists': lists};
     this.current = 'today';
   }
 
   save() {
-    this.store.store(this.lists);
+    let jsonConform = [];
+
+    for (const name in this.lists) {
+      jsonConform.push({'name': name, 'tasks': this.lists[name]});
+    }
+
+    this.store.store({'lists': jsonConform});
   }
 
   load(lists) {
@@ -167,21 +172,14 @@ class Lists {
     }
 
     for (const list of lists.lists) {
-      for (let tList of this.lists.lists) {
-        if (tList.name === list.name) {
-          tList.tasks = list.tasks;
-        }
+      if (this.lists[list.name] != null) {
+        this.lists[list.name] = list.tasks;
       }
     }
   }
 
   getCurrentTasks() {
-    for (const list of this.lists.lists) {
-      if (list.name === this.current) {
-        return list.tasks;
-      }
-    }
-    return null;
+    return this.lists[this.current];
   }
 
   addTask(txt) {
