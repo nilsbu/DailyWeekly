@@ -43,9 +43,7 @@ body {
     font-family: Avenir;
     padding: 0px;
     line-height: 18px;
-    /* height:30px; */
-    /* transition:height 1s; */
-    /* -webkit-transition:height 1s; */
+    width: 100%;
 }
 
 .task-done {
