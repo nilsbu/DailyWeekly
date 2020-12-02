@@ -26,9 +26,16 @@ body {
   font-size: 18px;
 }
 
-#title {
-  text-align: center;
+#title-bar {
   font-size: 48px;
+}
+
+#arrow-left {
+  text-align: right;
+}
+
+#arrow-right {
+  text-align: left;
 }
 
 #task-list, #plus {
