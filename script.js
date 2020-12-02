@@ -17,14 +17,17 @@ function addTask() {
 }
 
 function createTask() {
-  lists.getCurrentTasks().push({'txt': input.value, 'done': false});
+  const taskList = document.getElementById("task-list");
+  const task = taskList.lastChild;
+  const input = task.getElementsByClassName("task-input")[0];
 
+  lists.addTask(input.value);
   syncInterface();
   lists.save();
 }
 
 function finishTask(id) {
-  lists.getCurrentTasks()[id.substring(5)].done = true;
+  lists.setTaskDone(id.substring(5), true);
 
   syncInterface();
   lists.save();
@@ -95,6 +98,23 @@ class Lists {
       }
     }
     return null;
+  }
+
+  addTask(txt) {
+    if (txt == "") {
+      return false;
+    }
+
+    this.getCurrentTasks().push({'txt': txt, 'done': false});
+    return true;
+  }
+
+  removeTask(id) {
+    this.getCurrentTasks().splice(id, 1);
+  }
+
+  setTaskDone(id, isDone) {
+    this.getCurrentTasks()[id].done = isDone;
   }
 }
 
