@@ -1,25 +1,24 @@
 function addTask() {
-  taskList = document.getElementById("task-list");
+  let taskList = document.getElementById('task-list');
 
-  newTask = document.createElement("div");
-  newTask.setAttribute("class", "task");
-  newTask.setAttribute("id", `task-${lists.getCurrentTasks().length}`);
+  let newTask = document.createElement('div');
+  newTask.setAttribute('class', 'task');
+  newTask.setAttribute('id', `task-${lists.getCurrentTasks().length}`);
 
-  input = document.createElement("input");
-  input.setAttribute("class", "task-input");
-  input.setAttribute("onfocusout", "createTask();");
+  let input = document.createElement('input');
+  input.setAttribute('class', 'task-input');
+  input.setAttribute('onfocusout', 'createTask();');
 
   newTask.appendChild(input);
   taskList.appendChild(newTask);
   input.focus();
   input.select();
-  newTask.setAttribute("onclick", `toggleFinishTask("${newTask.id}");`);
 }
 
 function createTask() {
-  const taskList = document.getElementById("task-list");
+  const taskList = document.getElementById('task-list');
   const task = taskList.lastChild;
-  const input = task.getElementsByClassName("task-input")[0];
+  const input = task.getElementsByClassName('task-input')[0];
 
   lists.addTask(input.value);
   syncInterface();
@@ -27,7 +26,7 @@ function createTask() {
 }
 
 function toggleFinishTask(id) {
-  const isDone = lists.getTask(id.substring(5))['done'];
+  const isDone = lists.getTask(id.substring(5)).done;
   lists.setTaskDone(id.substring(5), !isDone);
 
   syncInterface();
@@ -35,8 +34,8 @@ function toggleFinishTask(id) {
 }
 
 function syncInterface() {
-  list = lists.getCurrentTasks();
-  taskList = document.getElementById('task-list');
+  const list = lists.getCurrentTasks();
+  let taskList = document.getElementById('task-list');
   while (taskList.firstChild) {
     taskList.removeChild(taskList.lastChild);
   }
@@ -44,12 +43,12 @@ function syncInterface() {
   let allTasksFinished = list.length > 0;
   let id = 0;
   for (const task of list) {
-    newTask = document.createElement('div');
+    let newTask = document.createElement('div');
     newTask.setAttribute('class', 'task');
     newTask.setAttribute('id', `task-${id++}`);
-    txt = document.createTextNode(task['txt']);
+    const txt = document.createTextNode(task.txt);
 
-    if (task['done']) {
+    if (task.done) {
       newTask.setAttribute('class', 'task-done');
     } else {
       allTasksFinished = false;
@@ -61,9 +60,9 @@ function syncInterface() {
   }
 
   if (allTasksFinished) {
-    document.body.style.background = "var(--bg-done)";
+    document.body.style.background = 'var(--bg-done)';
   } else {
-    document.body.style.background = "var(--bg-not-done)";
+    document.body.style.background = 'var(--bg-not-done)';
   }
 }
 
@@ -72,7 +71,7 @@ class Lists {
     this.store = store;
     this.store.onload = ls => {this.load(ls); syncInterface()};
 
-    let names = ['today'];
+    const names = ['today'];
     let lists = [];
     for (const name of names) {
       lists.push({'name': name, 'tasks': []});
@@ -90,26 +89,26 @@ class Lists {
       return
     }
 
-    for (const list of lists['lists']) {
-      for (let tList of this.lists['lists']) {
-        if (tList['name'] === list['name']) {
-          tList['tasks'] = list['tasks'];
+    for (const list of lists.lists) {
+      for (let tList of this.lists.lists) {
+        if (tList.name === list.name) {
+          tList.tasks = list.tasks;
         }
       }
     }
   }
 
   getCurrentTasks() {
-    for (const list of this.lists['lists']) {
-      if (list['name'] === this.current) {
-        return list['tasks'];
+    for (const list of this.lists.lists) {
+      if (list.name === this.current) {
+        return list.tasks;
       }
     }
     return null;
   }
 
   addTask(txt) {
-    if (txt == "") {
+    if (txt == '') {
       return false;
     }
 
