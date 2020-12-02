@@ -202,6 +202,16 @@ class Lists {
   getTask(id) {
     return this.getCurrentTasks()[id];
   }
+
+  nextDay() {
+    this.current = 'today';
+
+    this.lists['yesterday'] = this.lists['today'];
+    this.lists['today'] = this.lists['tomorrow'];
+    this.lists['tomorrow'] = [];
+
+    this.save();
+  }
 }
 
 // Storage
