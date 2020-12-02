@@ -42,6 +42,36 @@ function removeTask(id) {
   lists.save();
 }
 
+function previousList() {
+  switch (lists.current) {
+    case 'today':
+      lists.current = 'yesterday';
+      break;
+      case 'tomorrow':
+        lists.current = 'today';
+        break;
+    default:
+      return;
+  }
+
+  syncInterface();
+}
+
+function nextList() {
+  switch (lists.current) {
+    case 'yesterday':
+      lists.current = 'today';
+      break;
+      case 'today':
+        lists.current = 'tomorrow';
+        break;
+    default:
+      return;
+  }
+
+  syncInterface();
+}
+
 function syncInterface() {
   const list = lists.getCurrentTasks();
   let taskList = document.getElementById('task-list');
@@ -75,10 +105,41 @@ function syncInterface() {
     taskList.appendChild(taskLine);
   }
 
+  let bgColor;
   if (allTasksFinished) {
-    document.body.style.background = 'var(--bg-done)';
+    bgColor = 'var(--bg-done)';
   } else {
-    document.body.style.background = 'var(--bg-not-done)';
+    bgColor = 'var(--bg-not-done)';
+  }
+
+  document.body.style.background = bgColor;
+
+  let leftArrowSpan = document.getElementById('arrow-left').firstChild
+  if (lists.current == 'yesterday') {
+    leftArrowSpan.style.color = bgColor;
+  } else {
+    leftArrowSpan.style.color = 'white';
+  }
+
+  let rightArrowSpan = document.getElementById('arrow-right').firstChild
+  if (lists.current == 'tomorrow') {
+    rightArrowSpan.style.color = bgColor;
+  } else {
+    rightArrowSpan.style.color = 'white';
+  }
+
+  let title = document.getElementById('title');
+  switch (lists.current) {
+    case 'yesterday':
+      title.textContent = 'Gestern';
+      break;
+    case 'today':
+      title.textContent = 'Heute';
+      break;
+    case 'tomorrow':
+      title.textContent = 'Morgen';
+      break;
+    default:
   }
 }
 
@@ -87,7 +148,7 @@ class Lists {
     this.store = store;
     this.store.onload = ls => {this.load(ls); syncInterface()};
 
-    const names = ['today'];
+    const names = ['yesterday', 'today', 'tomorrow'];
     let lists = [];
     for (const name of names) {
       lists.push({'name': name, 'tasks': []});
