@@ -18,6 +18,7 @@ body {
   overflow: hidden;
   width: 100%;
   position: fixed;
+  margin: 0;
 
   background: var(--bg-not-done);
   color: white;
@@ -31,16 +32,18 @@ body {
 }
 
 #task-list, #plus {
-  padding-left: 6px;
+  padding-left: 16px;
 }
 
-.task, .task-done {
-  width=100%;
+.task, .task-done, .remove-button {
+  height: 18px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .task-input {
-    background-color:rgba(0, 0, 0, 0);
-    color:white;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
     border: 0px;
     margin: 0px;
     outline: none;
@@ -54,6 +57,11 @@ body {
 .task-done {
   color: rgba(255, 255, 255, .5);
   text-decoration: line-through;
+}
+
+.remove-button {
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 #plus {

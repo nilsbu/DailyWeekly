@@ -1,16 +1,18 @@
 function addTask() {
   let taskList = document.getElementById('task-list');
 
-  let newTask = document.createElement('div');
-  newTask.setAttribute('class', 'task');
-  newTask.setAttribute('id', `task-${lists.getCurrentTasks().length}`);
+  let taskLine = document.createElement('tr');
+  let taskInput = document.createElement('td');
+  taskInput.setAttribute('class', 'task');
+  taskInput.setAttribute('id', `task-${lists.getCurrentTasks().length}`);
 
   let input = document.createElement('input');
   input.setAttribute('class', 'task-input');
   input.setAttribute('onfocusout', 'createTask();');
 
-  newTask.appendChild(input);
-  taskList.appendChild(newTask);
+  taskInput.appendChild(input);
+  taskLine.appendChild(taskInput);
+  taskList.appendChild(taskLine);
   input.focus();
   input.select();
 }
@@ -43,20 +45,26 @@ function syncInterface() {
   let allTasksFinished = list.length > 0;
   let id = 0;
   for (const task of list) {
-    let newTask = document.createElement('div');
-    newTask.setAttribute('class', 'task');
+    let taskLine = document.createElement('tr');
+    let newTask = document.createElement('td');
     newTask.setAttribute('id', `task-${id++}`);
-    const txt = document.createTextNode(task.txt);
-
+    newTask.setAttribute('width', '99%');
+    newTask.setAttribute('onclick', `toggleFinishTask('${newTask.id}');`);
     if (task.done) {
       newTask.setAttribute('class', 'task-done');
     } else {
+      newTask.setAttribute('class', 'task');
       allTasksFinished = false;
     }
+    newTask.appendChild(document.createTextNode(task.txt));
+    taskLine.appendChild(newTask);
 
-    newTask.appendChild(txt);
-    taskList.appendChild(newTask);
-    newTask.setAttribute('onclick', `toggleFinishTask('${newTask.id}');`);
+    let removeButton = document.createElement('td');
+    removeButton.setAttribute('class', 'remove-button');
+    removeButton.appendChild(document.createTextNode('X'));
+    taskLine.appendChild(removeButton);
+
+    taskList.appendChild(taskLine);
   }
 
   if (allTasksFinished) {
