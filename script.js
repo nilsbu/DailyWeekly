@@ -17,13 +17,6 @@ function addTask() {
 }
 
 function createTask() {
-  taskList = document.getElementById("task-list");
-  task = taskList.lastChild;
-  input = task.getElementsByClassName("task-input")[0];
-  task.removeChild(input);
-  txt = document.createTextNode(input.value);
-  task.appendChild(txt);
-
   lists.getCurrentTasks().push({'txt': input.value, 'done': false});
 
   syncInterface();
@@ -31,10 +24,6 @@ function createTask() {
 }
 
 function finishTask(id) {
-  taskList = document.getElementById("task-list");
-  task = document.getElementById(id);
-  task.setAttribute("class", "task-done");
-
   lists.getCurrentTasks()[id.substring(5)].done = true;
 
   syncInterface();
