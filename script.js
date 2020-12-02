@@ -13,7 +13,7 @@ function addTask() {
   taskList.appendChild(newTask);
   input.focus();
   input.select();
-  newTask.setAttribute("onclick", `finishTask("${newTask.id}");`);
+  newTask.setAttribute("onclick", `toggleFinishTask("${newTask.id}");`);
 }
 
 function createTask() {
@@ -26,8 +26,9 @@ function createTask() {
   lists.save();
 }
 
-function finishTask(id) {
-  lists.setTaskDone(id.substring(5), true);
+function toggleFinishTask(id) {
+  const isDone = lists.getTask(id.substring(5))['done'];
+  lists.setTaskDone(id.substring(5), !isDone);
 
   syncInterface();
   lists.save();
@@ -56,7 +57,7 @@ function syncInterface() {
 
     newTask.appendChild(txt);
     taskList.appendChild(newTask);
-    newTask.setAttribute('onclick', `finishTask('${newTask.id}');`);
+    newTask.setAttribute('onclick', `toggleFinishTask('${newTask.id}');`);
   }
 
   if (allTasksFinished) {
@@ -122,6 +123,10 @@ class Lists {
 
   setTaskDone(id, isDone) {
     this.getCurrentTasks()[id].done = isDone;
+  }
+
+  getTask(id) {
+    return this.getCurrentTasks()[id];
   }
 }
 
