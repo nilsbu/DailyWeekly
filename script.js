@@ -35,6 +35,13 @@ function toggleFinishTask(id) {
   lists.save();
 }
 
+function removeTask(id) {
+  lists.removeTask(id.substring(5));
+
+  syncInterface();
+  lists.save();
+}
+
 function syncInterface() {
   const list = lists.getCurrentTasks();
   let taskList = document.getElementById('task-list');
@@ -61,6 +68,7 @@ function syncInterface() {
 
     let removeButton = document.createElement('td');
     removeButton.setAttribute('class', 'remove-button');
+    removeButton.setAttribute('onclick', `removeTask('${newTask.id}');`);
     removeButton.appendChild(document.createTextNode('X'));
     taskLine.appendChild(removeButton);
 
