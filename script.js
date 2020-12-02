@@ -68,7 +68,6 @@ function syncInterface() {
 
 class Lists {
   constructor(store) {
-    // TODO: store should be passed
     this.store = store;
     this.store.onload = ls => {this.load(ls); syncInterface()};
 
@@ -86,8 +85,16 @@ class Lists {
   }
 
   load(lists) {
-    if (!(lists == null)) {
-      this.lists = lists;
+    if (lists == null) {
+      return
+    }
+
+    for (const list of lists['lists']) {
+      for (let tList of this.lists['lists']) {
+        if (tList['name'] === list['name']) {
+          tList['tasks'] = list['tasks'];
+        }
+      }
     }
   }
 
@@ -137,7 +144,6 @@ class StorageJson {
 var store = new StorageJson();
 var lists = new Lists(store);
 
-// Init
 function init() {
   store.loadAsync();
 }
