@@ -208,6 +208,14 @@ function isDayOver() {
       for (let i = 0; i < Math.min(3, thisDay - lastDay); i++){
         lists.nextDay();
       }
+
+      const lastDoW = new Date(lastDayOverCheck).getDay();
+      const thisDoW = lastDoW + (thisDay - lastDay);
+      const weeks = Math.floor(thisDoW / 7);
+      for (let i = 0; i < Math.min(3, weeks); i++){
+        lists.nextWeek();
+      }
+
       lists.save();
       syncInterface();
     }
@@ -407,6 +415,10 @@ class Lists {
     this.lists['d0'] = this.lists['d1'];
     this.lists['d1'] = [];
 
+    this.current = 'd0';
+  }
+
+  nextWeek() {
     this.lists['w-1'] = this.lists['w0'];
     this.lists['w0'] = this.lists['w1'];
     this.lists['w1'] = [];
