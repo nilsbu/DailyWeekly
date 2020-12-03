@@ -72,10 +72,10 @@ function moveTask(id, list) {
 
   if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
     // copy
-    lists.addTask(task.txt, task.done, list);
+    lists.addTask(task.txt, task.done, task.id, list);
   } else {
     // move
-    lists.addTask(task.txt, task.done, list);
+    lists.addTask(task.txt, task.done, task.parent, list);
     lists.removeTask(nid);
   }
 
@@ -334,8 +334,7 @@ function syncBackground() {
 
 class Lists {
   constructor(store) {
-    this.store = store;
-    this.store.onload = ls => {this.load(ls); syncInterface()};
+    this.nextId = 0;
 
     const names = ['d-1', 'd0', 'd1', 'w-1', 'w0', 'w1'];
     this.lists = {};
@@ -343,6 +342,9 @@ class Lists {
       this.lists[name] = [];
     }
     this.current = 'd0';
+
+    this.store = store;
+    this.store.onload = ls => {this.load(ls); syncInterface()};
   }
 
   save() {
@@ -363,6 +365,12 @@ class Lists {
     for (const list of lists.lists) {
       if (this.lists[list.name] != null) {
         this.lists[list.name] = list.tasks;
+
+        for (const task of list.tasks) {
+          if (task.id != undefined && this.nextId < task.id + 1) {
+            this.nextId = task.id + 1;
+          }
+        }
       }
     }
   }
@@ -371,14 +379,19 @@ class Lists {
     return this.lists[this.current];
   }
 
-  addTask(txt, done=false, list=null) {
+  addTask(txt, done=false, parent=null, list=null) {
     if (txt == '') {
       return false;
     }
+    let task = {'id': this.nextId++, 'txt': txt, 'done': done};
+    if (parent != null) {
+      task.parent = parent;
+    }
+
     if (list == null) {
-      this.getCurrentTasks().push({'txt': txt, 'done': done});
+      this.getCurrentTasks().push(task);
     } else {
-      this.lists[list].push({'txt': txt, 'done': done});
+      this.lists[list].push(task);
     }
 
     return true;
@@ -389,7 +402,20 @@ class Lists {
   }
 
   setTaskDone(id, isDone) {
-    this.getCurrentTasks()[id].done = isDone;
+    let task = this.getCurrentTasks()[id];
+    task.done = isDone;
+
+    if (task.parent != undefined) {
+      for (const name in this.lists) {
+        let list = this.lists[name];
+        for (let t of list) {
+          if (t.id == task.parent) {
+            t.done = isDone;
+            break;
+          }
+        }
+      }
+    }
   }
 
   getTask(id) {
