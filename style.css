@@ -27,7 +27,8 @@ body {
 }
 
 #title-bar {
-  font-size: 48px;
+  font-size: 32px;
+  white-space: nowrap;
 }
 
 #arrow-left {

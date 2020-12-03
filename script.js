@@ -43,30 +43,30 @@ function removeTask(id) {
 }
 
 function previousList() {
-  switch (lists.current) {
-    case 'today':
-      lists.current = 'yesterday';
-      break;
-      case 'tomorrow':
-        lists.current = 'today';
-        break;
-    default:
-      return;
-  }
+  let dw = lists.current.substring(0, 1);
+  let n = parseInt(lists.current.substring(1, 3));
 
-  syncInterface();
+  if (n > -1) {
+    lists.current = dw + (n - 1);
+    syncInterface();
+  }
 }
 
 function nextList() {
-  switch (lists.current) {
-    case 'yesterday':
-      lists.current = 'today';
-      break;
-      case 'today':
-        lists.current = 'tomorrow';
-        break;
-    default:
-      return;
+  let dw = lists.current.substring(0, 1);
+  let n = parseInt(lists.current.substring(1, 3));
+
+  if (n < 1) {
+    lists.current = dw + (n + 1);
+    syncInterface();
+  }
+}
+
+function switchDayWeek() {
+  if (lists.current.substring(0, 1) === 'd') {
+    lists.current = 'w0';
+  } else {
+    lists.current = 'd0';
   }
 
   syncInterface();
@@ -115,14 +115,14 @@ function syncInterface() {
   document.body.style.background = bgColor;
 
   let leftArrowSpan = document.getElementById('arrow-left').firstChild
-  if (lists.current == 'yesterday') {
+  if (lists.current.substring(1, 3) == '-1') {
     leftArrowSpan.style.color = bgColor;
   } else {
     leftArrowSpan.style.color = 'white';
   }
 
   let rightArrowSpan = document.getElementById('arrow-right').firstChild
-  if (lists.current == 'tomorrow') {
+  if (lists.current.substring(1, 3) == '1') {
     rightArrowSpan.style.color = bgColor;
   } else {
     rightArrowSpan.style.color = 'white';
@@ -130,14 +130,23 @@ function syncInterface() {
 
   let title = document.getElementById('title');
   switch (lists.current) {
-    case 'yesterday':
-      title.textContent = 'Gestern';
+    case 'd-1':
+      title.innerHTML = 'Gestern';
       break;
-    case 'today':
-      title.textContent = 'Heute';
+    case 'd0':
+      title.innerHTML = 'Heute';
       break;
-    case 'tomorrow':
-      title.textContent = 'Morgen';
+    case 'd1':
+      title.innerHTML = 'Morgen';
+      break;
+    case 'w-1':
+      title.innerHTML = 'Letzte Woche';
+      break;
+    case 'w0':
+      title.innerHTML = 'Diese Woche';
+      break;
+    case 'w1':
+      title.innerHTML = 'N&auml;chste Woche';
       break;
     default:
   }
@@ -148,12 +157,12 @@ class Lists {
     this.store = store;
     this.store.onload = ls => {this.load(ls); syncInterface()};
 
-    const names = ['yesterday', 'today', 'tomorrow'];
+    const names = ['d-1', 'd0', 'd1', 'w-1', 'w0', 'w1'];
     this.lists = {};
     for (const name of names) {
       this.lists[name] = [];
     }
-    this.current = 'today';
+    this.current = 'd0';
   }
 
   save() {
@@ -204,11 +213,15 @@ class Lists {
   }
 
   nextDay() {
-    this.current = 'today';
+    this.current = 'd0';
 
-    this.lists['yesterday'] = this.lists['today'];
-    this.lists['today'] = this.lists['tomorrow'];
-    this.lists['tomorrow'] = [];
+    this.lists['d-1'] = this.lists['d0'];
+    this.lists['d0'] = this.lists['d1'];
+    this.lists['d1'] = [];
+
+    this.lists['w-1'] = this.lists['w0'];
+    this.lists['w0'] = this.lists['w1'];
+    this.lists['w1'] = [];
 
     this.save();
   }
