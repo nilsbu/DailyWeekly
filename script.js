@@ -69,12 +69,22 @@ function toggleFinishTask(id) {
 function moveTask(id, list) {
   const nid = id.substring(5);
   const task = lists.getCurrentTasks()[nid];
-  lists.addTask(task.txt, task.done, list);
-  lists.removeTask(nid);
 
-  if (lists.getCurrentTasks().length == 0) {
-    editMode = false;
+  if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
+    // copy
+    lists.addTask(task.txt, task.done, list);
+  } else {
+    // move
+    lists.addTask(task.txt, task.done, list);
+    lists.removeTask(nid);
   }
+
+  let dialog = document.getElementById('move-dialog');
+  if (dialog != null) {
+    dialog.parentNode.removeChild(dialog);
+  }
+
+  editMode = false;
 
   syncInterface();
   lists.save();
@@ -126,6 +136,59 @@ function switchDayWeek() {
 function toggleEdit() {
   editMode = !editMode;
   syncInterface();
+}
+
+function showMoveDialog(id) {
+  let dialog = document.createElement('div');
+  dialog.setAttribute('id', 'move-dialog');
+
+  let row = null;
+  row = document.createElement('div');
+  row.setAttribute('class', 'dialog-row');
+
+  let cell = null;
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'd-1')`);
+  cell.innerHTML = 'gestern';
+  row.appendChild(cell);
+
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'd0')`);
+  cell.innerHTML = 'heute';
+  row.appendChild(cell);
+
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'd1')`);
+  cell.innerHTML = 'morgen';
+  row.appendChild(cell);
+  dialog.appendChild(row);
+
+  row = document.createElement('div');
+  row.setAttribute('class', 'dialog-row');
+
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'w-1')`);
+  cell.innerHTML = 'letzte W.';
+  row.appendChild(cell);
+
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'w0')`);
+  cell.innerHTML = 'diese W.';
+  row.appendChild(cell);
+
+  cell = document.createElement('div');
+  cell.setAttribute('class', 'dialog-option');
+  cell.setAttribute('onclick', `moveTask('${id}', 'w1')`);
+  cell.innerHTML = 'n&auml;chste W.';
+  row.appendChild(cell);
+  dialog.appendChild(row);
+
+  document.body.appendChild(dialog);
 }
 
 // Next day management
@@ -231,14 +294,23 @@ function syncTaskList() {
     newTask.appendChild(document.createTextNode(task.txt));
     taskLine.appendChild(newTask);
 
+    let moveButton = document.createElement('td');
+    if (editMode) {
+      moveButton.setAttribute('class', 'task-button');
+      moveButton.setAttribute('onclick', `showMoveDialog('${newTask.id}');`);
+      moveButton.appendChild(document.createTextNode('M'));
+    } else {
+      moveButton.setAttribute('class', 'task-button-inactive');
+    }
+    taskLine.appendChild(moveButton);
 
     let removeButton = document.createElement('td');
     if (editMode) {
-      removeButton.setAttribute('class', 'remove-button');
+      removeButton.setAttribute('class', 'task-button');
       removeButton.setAttribute('onclick', `removeTask('${newTask.id}');`);
       removeButton.appendChild(document.createTextNode('X'));
     } else {
-      removeButton.setAttribute('class', 'remove-button-inactive');
+      removeButton.setAttribute('class', 'task-button-inactive');
     }
     taskLine.appendChild(removeButton);
 
@@ -376,6 +448,7 @@ class StorageJson {
 var store = new StorageJson();
 var lists = new Lists(store);
 var editMode = false;
+var moveId = null;
 
 function init() {
   store.loadListsAsync();

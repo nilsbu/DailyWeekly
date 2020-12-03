@@ -50,7 +50,7 @@ body {
   padding-left: 16px;
 }
 
-.task, .task-done, .remove-button {
+.task, .task-done, .task-button {
   height: 18px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -74,11 +74,36 @@ body {
   text-decoration: line-through;
 }
 
-.remove-button {
+.task-button {
   padding-left: 16px;
   padding-right: 16px;
 }
 
+.task-button-inactive {
+}
+
 #plus {
   font-size: 24px;
+}
+
+#move-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: table;
+  table-layout: fixed;
+  border: 10px;
+}
+
+.dialog-option {
+  white-space: nowrap;
+  border: solid rgba(0,0,0,0) 4px;
+  background: #000;
+  content: solid black;
+  display: table-cell;
+  width: 100px;
+  height: 50px;
+  vertical-align: middle;
+  text-align: center;
 }
