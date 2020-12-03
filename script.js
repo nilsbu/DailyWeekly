@@ -16,7 +16,6 @@ function addTask() {
   taskLine.appendChild(taskInput);
   taskList.appendChild(taskLine);
   input.focus();
-  input.select();
 }
 
 function createTask() {
@@ -25,6 +24,36 @@ function createTask() {
   const input = task.getElementsByClassName('task-input')[0];
 
   lists.addTask(input.value);
+  syncInterface();
+  lists.save();
+}
+
+function taskClicked(id) {
+  if (editMode) {
+    let task = document.getElementById(id);
+    const txt = task.textContent;
+    task.innerHTML = "";
+    addTaskInput(id, txt);
+  } else {
+    toggleFinishTask(id);
+  }
+}
+
+function addTaskInput(id, txt) {
+  let task = document.getElementById(id);
+  let input = document.createElement('input');
+  input.setAttribute('class', 'task-input');
+  input.setAttribute('onfocusout', `finalizeTaskInput('${id}');`);
+  input.value = txt;
+
+  task.appendChild(input);
+  input.focus();
+}
+
+function finalizeTaskInput(id) {
+  let task = document.getElementById(id);
+  lists.getCurrentTasks()[id.substring(5)].txt = task.firstChild.value;
+
   syncInterface();
   lists.save();
 }
@@ -179,7 +208,7 @@ function syncTaskList() {
     let newTask = document.createElement('td');
     newTask.setAttribute('id', `task-${id++}`);
     newTask.setAttribute('width', '100%');
-    newTask.setAttribute('onclick', `toggleFinishTask('${newTask.id}');`);
+    newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
     if (task.done) {
       newTask.setAttribute('class', 'task-done');
     } else {
