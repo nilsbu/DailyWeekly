@@ -1,3 +1,5 @@
+// Callbacks
+
 function addTask() {
   let taskList = document.getElementById('task-list');
 
@@ -38,6 +40,7 @@ function toggleFinishTask(id) {
 function removeTask(id) {
   lists.removeTask(id.substring(5));
 
+  editMode = lists.getCurrentTasks().length > 0;
   syncInterface();
   lists.save();
 }
@@ -48,6 +51,8 @@ function previousList() {
 
   if (n > -1) {
     lists.current = dw + (n - 1);
+
+    editMode = false;
     syncInterface();
   }
 }
@@ -58,6 +63,8 @@ function nextList() {
 
   if (n < 1) {
     lists.current = dw + (n + 1);
+
+    editMode = false;
     syncInterface();
   }
 }
@@ -69,8 +76,16 @@ function switchDayWeek() {
     lists.current = 'd0';
   }
 
+  editMode = false;
   syncInterface();
 }
+
+function toggleEdit() {
+  editMode = !editMode;
+  syncInterface();
+}
+
+// Next day management
 
 function isDayOver() {
   let lastDayOverCheck = store.loadLastDayOverCheck();
@@ -95,6 +110,8 @@ function isDayOver() {
 
   window.setTimeout(isDayOver, 60 * 1000);
 }
+
+// Drawing
 
 function syncInterface() {
   syncTitleBar();
@@ -161,7 +178,7 @@ function syncTaskList() {
     let taskLine = document.createElement('tr');
     let newTask = document.createElement('td');
     newTask.setAttribute('id', `task-${id++}`);
-    newTask.setAttribute('width', '99%');
+    newTask.setAttribute('width', '100%');
     newTask.setAttribute('onclick', `toggleFinishTask('${newTask.id}');`);
     if (task.done) {
       newTask.setAttribute('class', 'task-done');
@@ -171,10 +188,15 @@ function syncTaskList() {
     newTask.appendChild(document.createTextNode(task.txt));
     taskLine.appendChild(newTask);
 
+
     let removeButton = document.createElement('td');
-    removeButton.setAttribute('class', 'remove-button');
-    removeButton.setAttribute('onclick', `removeTask('${newTask.id}');`);
-    removeButton.appendChild(document.createTextNode('X'));
+    if (editMode) {
+      removeButton.setAttribute('class', 'remove-button');
+      removeButton.setAttribute('onclick', `removeTask('${newTask.id}');`);
+      removeButton.appendChild(document.createTextNode('X'));
+    } else {
+      removeButton.setAttribute('class', 'remove-button-inactive');
+    }
     taskLine.appendChild(removeButton);
 
     taskList.appendChild(taskLine);
@@ -184,6 +206,8 @@ function syncTaskList() {
 function syncBackground() {
   document.body.style.background = getBackGroundColor();
 }
+
+// Lists
 
 class Lists {
   constructor(store) {
@@ -300,8 +324,11 @@ class StorageJson {
   }
 }
 
+// Initialization
+
 var store = new StorageJson();
 var lists = new Lists(store);
+var editMode = false;
 
 function init() {
   store.loadListsAsync();
