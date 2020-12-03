@@ -103,7 +103,6 @@ function syncInterface() {
     taskList.removeChild(taskList.lastChild);
   }
 
-  let allTasksFinished = list.length > 0;
   let id = 0;
   for (const task of list) {
     let taskLine = document.createElement('tr');
@@ -115,7 +114,6 @@ function syncInterface() {
       newTask.setAttribute('class', 'task-done');
     } else {
       newTask.setAttribute('class', 'task');
-      allTasksFinished = false;
     }
     newTask.appendChild(document.createTextNode(task.txt));
     taskLine.appendChild(newTask);
@@ -130,12 +128,11 @@ function syncInterface() {
   }
 
   let bgColor;
-  if (allTasksFinished) {
+  if (lists.areAllTasksDone()) {
     bgColor = 'var(--bg-done)';
   } else {
     bgColor = 'var(--bg-not-done)';
   }
-
   document.body.style.background = bgColor;
 
   let leftArrowSpan = document.getElementById('arrow-left').firstChild
@@ -234,6 +231,20 @@ class Lists {
 
   getTask(id) {
     return this.getCurrentTasks()[id];
+  }
+
+  areAllTasksDone() {
+    const tasks = this.getCurrentTasks();
+    if (tasks.length == 0) {
+      return false;
+    } else {
+      for (const task of tasks) {
+        if (task.done === false) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 
   nextDay() {
