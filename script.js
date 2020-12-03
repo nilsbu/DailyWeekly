@@ -73,21 +73,26 @@ function switchDayWeek() {
 }
 
 function isDayOver() {
-  const thisDayOverCheck = Date.now();
+  let lastDayOverCheck = store.loadLastDayOverCheck();
+  if (lastDayOverCheck == null) {
+    store.storeLastDayOverCheck(Date.now());
+  } else {
+    const thisDayOverCheck = Date.now();
 
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const lastDay = Math.floor(lastDayOverCheck / msPerDay);
-  const thisDay = Math.floor(thisDayOverCheck / msPerDay);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const lastDay = Math.floor(lastDayOverCheck / msPerDay);
+    const thisDay = Math.floor(thisDayOverCheck / msPerDay);
 
-  if (thisDay > lastDay) {
-    for (let i = 0; i < Math.min(3, thisDay - lastDay); i++){
-      lists.nextDay();
+    if (thisDay > lastDay) {
+      for (let i = 0; i < Math.min(3, thisDay - lastDay); i++){
+        lists.nextDay();
+      }
+      lists.save();
+      syncInterface();
     }
-    lists.save();
-    syncInterface();
+    store.storeLastDayOverCheck(thisDayOverCheck);
   }
 
-  lastDayOverCheck = thisDayOverCheck;
   window.setTimeout(isDayOver, 60 * 1000);
 }
 
@@ -191,7 +196,7 @@ class Lists {
       jsonConform.push({'name': name, 'tasks': this.lists[name]});
     }
 
-    this.store.store({'lists': jsonConform});
+    this.store.storeLists({'lists': jsonConform});
   }
 
   load(lists) {
@@ -247,25 +252,36 @@ class Lists {
 // Storage
 
 class StorageJson {
-  store(lists) {
+  storeLists(lists) {
     localStorage.setItem('lists', JSON.stringify(lists));
   }
 
-  loadAsync() {
+  loadListsAsync() {
     let lists = null;
     if (localStorage.hasOwnProperty('lists')) {
       lists = JSON.parse(localStorage.getItem('lists'));
     }
     this.onload(lists);
   }
+
+  storeLastDayOverCheck(lastDayOverCheck) {
+    localStorage.setItem('last-day-check', lastDayOverCheck);
+  }
+
+  loadLastDayOverCheck() {
+    if (localStorage.hasOwnProperty('last-day-check')) {
+      return parseInt(localStorage.getItem('last-day-check'));
+    }
+
+    return null;
+  }
 }
 
 var store = new StorageJson();
 var lists = new Lists(store);
-var lastDayOverCheck = Date.now();
 
 function init() {
-  store.loadAsync();
+  store.loadListsAsync();
   isDayOver();
 }
 window.addEventListener('load', init)
