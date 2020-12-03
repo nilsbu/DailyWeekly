@@ -72,6 +72,25 @@ function switchDayWeek() {
   syncInterface();
 }
 
+function isDayOver() {
+  const thisDayOverCheck = Date.now();
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const lastDay = Math.floor(lastDayOverCheck / msPerDay);
+  const thisDay = Math.floor(thisDayOverCheck / msPerDay);
+
+  if (thisDay > lastDay) {
+    for (let i = 0; i < Math.min(3, thisDay - lastDay); i++){
+      lists.nextDay();
+    }
+    lists.save();
+    syncInterface();
+  }
+
+  lastDayOverCheck = thisDayOverCheck;
+  window.setTimeout(isDayOver, 60 * 1000);
+}
+
 function syncInterface() {
   const list = lists.getCurrentTasks();
   let taskList = document.getElementById('task-list');
@@ -213,8 +232,6 @@ class Lists {
   }
 
   nextDay() {
-    this.current = 'd0';
-
     this.lists['d-1'] = this.lists['d0'];
     this.lists['d0'] = this.lists['d1'];
     this.lists['d1'] = [];
@@ -223,7 +240,7 @@ class Lists {
     this.lists['w0'] = this.lists['w1'];
     this.lists['w1'] = [];
 
-    this.save();
+    this.current = 'd0';
   }
 }
 
@@ -245,8 +262,10 @@ class StorageJson {
 
 var store = new StorageJson();
 var lists = new Lists(store);
+var lastDayOverCheck = Date.now();
 
 function init() {
   store.loadAsync();
+  isDayOver();
 }
 window.addEventListener('load', init)
