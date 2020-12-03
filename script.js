@@ -97,6 +97,59 @@ function isDayOver() {
 }
 
 function syncInterface() {
+  syncTitleBar();
+  syncTaskList();
+  syncBackground();
+}
+
+function getBackGroundColor() {
+  if (lists.areAllTasksDone()) {
+    return 'var(--bg-done)';
+  } else {
+    return 'var(--bg-not-done)';
+  }
+}
+
+function syncTitleBar() {
+  let leftArrowSpan = document.getElementById('arrow-left').firstChild
+  if (lists.current.substring(1, 3) == '-1') {
+    leftArrowSpan.style.color = getBackGroundColor();
+  } else {
+    leftArrowSpan.style.color = 'white';
+  }
+
+  let rightArrowSpan = document.getElementById('arrow-right').firstChild
+  if (lists.current.substring(1, 3) == '1') {
+    rightArrowSpan.style.color = getBackGroundColor();
+  } else {
+    rightArrowSpan.style.color = 'white';
+  }
+
+  let title = document.getElementById('title');
+  switch (lists.current) {
+    case 'd-1':
+      title.innerHTML = 'Gestern';
+      break;
+    case 'd0':
+      title.innerHTML = 'Heute';
+      break;
+    case 'd1':
+      title.innerHTML = 'Morgen';
+      break;
+    case 'w-1':
+      title.innerHTML = 'Letzte Woche';
+      break;
+    case 'w0':
+      title.innerHTML = 'Diese Woche';
+      break;
+    case 'w1':
+      title.innerHTML = 'N&auml;chste Woche';
+      break;
+    default:
+  }
+}
+
+function syncTaskList() {
   const list = lists.getCurrentTasks();
   let taskList = document.getElementById('task-list');
   while (taskList.firstChild) {
@@ -126,51 +179,10 @@ function syncInterface() {
 
     taskList.appendChild(taskLine);
   }
+}
 
-  let bgColor;
-  if (lists.areAllTasksDone()) {
-    bgColor = 'var(--bg-done)';
-  } else {
-    bgColor = 'var(--bg-not-done)';
-  }
-  document.body.style.background = bgColor;
-
-  let leftArrowSpan = document.getElementById('arrow-left').firstChild
-  if (lists.current.substring(1, 3) == '-1') {
-    leftArrowSpan.style.color = bgColor;
-  } else {
-    leftArrowSpan.style.color = 'white';
-  }
-
-  let rightArrowSpan = document.getElementById('arrow-right').firstChild
-  if (lists.current.substring(1, 3) == '1') {
-    rightArrowSpan.style.color = bgColor;
-  } else {
-    rightArrowSpan.style.color = 'white';
-  }
-
-  let title = document.getElementById('title');
-  switch (lists.current) {
-    case 'd-1':
-      title.innerHTML = 'Gestern';
-      break;
-    case 'd0':
-      title.innerHTML = 'Heute';
-      break;
-    case 'd1':
-      title.innerHTML = 'Morgen';
-      break;
-    case 'w-1':
-      title.innerHTML = 'Letzte Woche';
-      break;
-    case 'w0':
-      title.innerHTML = 'Diese Woche';
-      break;
-    case 'w1':
-      title.innerHTML = 'N&auml;chste Woche';
-      break;
-    default:
-  }
+function syncBackground() {
+  document.body.style.background = getBackGroundColor();
 }
 
 class Lists {
