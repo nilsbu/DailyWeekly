@@ -218,6 +218,7 @@ function isDayOver() {
 function syncInterface() {
   syncTitleBar();
   syncTaskList();
+  syncAddButton();
   syncBackground();
 }
 
@@ -314,6 +315,17 @@ function syncTaskList() {
 
     taskList.appendChild(taskLine);
   }
+}
+
+function syncAddButton() {
+  let visiblity = 'visible';
+
+  if (lists.current.substring(1, 3) == '-1' || editMode === true) {
+    visiblity = 'hidden';
+  }
+
+  let plus = document.getElementById('plus');
+  plus.style.visibility = visiblity;
 }
 
 function syncBackground() {
