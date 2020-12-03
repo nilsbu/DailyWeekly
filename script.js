@@ -66,6 +66,20 @@ function toggleFinishTask(id) {
   lists.save();
 }
 
+function moveTask(id, list) {
+  const nid = id.substring(5);
+  const task = lists.getCurrentTasks()[nid];
+  lists.addTask(task.txt, task.done, list);
+  lists.removeTask(nid);
+
+  if (lists.getCurrentTasks().length == 0) {
+    editMode = false;
+  }
+
+  syncInterface();
+  lists.save();
+}
+
 function removeTask(id) {
   lists.removeTask(id.substring(5));
 
@@ -277,12 +291,16 @@ class Lists {
     return this.lists[this.current];
   }
 
-  addTask(txt) {
+  addTask(txt, done=false, list=null) {
     if (txt == '') {
       return false;
     }
+    if (list == null) {
+      this.getCurrentTasks().push({'txt': txt, 'done': done});
+    } else {
+      this.lists[list].push({'txt': txt, 'done': done});
+    }
 
-    this.getCurrentTasks().push({'txt': txt, 'done': false});
     return true;
   }
 
