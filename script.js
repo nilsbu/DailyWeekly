@@ -149,12 +149,6 @@ function showMoveDialog(id) {
   let cell = null;
   cell = document.createElement('div');
   cell.setAttribute('class', 'dialog-option');
-  cell.setAttribute('onclick', `moveTask('${id}', 'd-1')`);
-  cell.innerHTML = 'gestern';
-  row.appendChild(cell);
-
-  cell = document.createElement('div');
-  cell.setAttribute('class', 'dialog-option');
   cell.setAttribute('onclick', `moveTask('${id}', 'd0')`);
   cell.innerHTML = 'heute';
   row.appendChild(cell);
@@ -168,12 +162,6 @@ function showMoveDialog(id) {
 
   row = document.createElement('div');
   row.setAttribute('class', 'dialog-row');
-
-  cell = document.createElement('div');
-  cell.setAttribute('class', 'dialog-option');
-  cell.setAttribute('onclick', `moveTask('${id}', 'w-1')`);
-  cell.innerHTML = 'letzte W.';
-  row.appendChild(cell);
 
   cell = document.createElement('div');
   cell.setAttribute('class', 'dialog-option');
