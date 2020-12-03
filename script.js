@@ -411,17 +411,12 @@ class Lists {
   }
 
   areAllTasksDone() {
-    const tasks = this.getCurrentTasks();
-    if (tasks.length == 0) {
-      return false;
-    } else {
-      for (const task of tasks) {
-        if (task.done === false) {
-          return false;
-        }
+    for (const task of this.getCurrentTasks()) {
+      if (task.done === false) {
+        return false;
       }
-      return true;
     }
+    return true;
   }
 
   nextDay() {
