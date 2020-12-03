@@ -102,7 +102,7 @@ function previousList() {
   let dw = lists.current.substring(0, 1);
   let n = parseInt(lists.current.substring(1, 3));
 
-  if (n > -1) {
+  if (n > -1 && (n == 1 || !lists.areAllTasksDone(`${dw}-1`))) {
     lists.current = dw + (n - 1);
 
     editMode = false;
@@ -231,7 +231,9 @@ function getBackGroundColor() {
 
 function syncTitleBar() {
   let leftArrowSpan = document.getElementById('arrow-left').firstChild
-  if (lists.current.substring(1, 3) == '-1') {
+  if (lists.current.substring(1, 3) == '-1' ||
+      (lists.current.substring(1, 3) == '0' &&
+      lists.areAllTasksDone(`${lists.current.substring(0, 1)}-1`))) {
     leftArrowSpan.style.color = getBackGroundColor();
   } else {
     leftArrowSpan.style.color = 'white';
@@ -410,8 +412,15 @@ class Lists {
     return this.getCurrentTasks()[id];
   }
 
-  areAllTasksDone() {
-    for (const task of this.getCurrentTasks()) {
+  areAllTasksDone(list=null) {
+    let tasks;
+    if (list == null) {
+      tasks = this.getCurrentTasks();
+    } else {
+        tasks = this.lists[list];
+    }
+
+    for (const task of tasks) {
       if (task.done === false) {
         return false;
       }
