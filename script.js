@@ -222,29 +222,21 @@ function syncInterface() {
   syncBackground();
 }
 
-function getBackGroundColor() {
-  if (lists.areAllTasksDone()) {
-    return 'var(--bg-done)';
-  } else {
-    return 'var(--bg-not-done)';
-  }
-}
-
 function syncTitleBar() {
   let leftArrowSpan = document.getElementById('arrow-left').firstChild
   if (lists.current.substring(1, 3) == '-1' ||
       (lists.current.substring(1, 3) == '0' &&
       lists.areAllTasksDone(`${lists.current.substring(0, 1)}-1`))) {
-    leftArrowSpan.style.color = getBackGroundColor();
+    leftArrowSpan.style.visibility = 'hidden';
   } else {
-    leftArrowSpan.style.color = 'white';
+    leftArrowSpan.style.visibility = 'visible';
   }
 
   let rightArrowSpan = document.getElementById('arrow-right').firstChild
   if (lists.current.substring(1, 3) == '1') {
-    rightArrowSpan.style.color = getBackGroundColor();
+    rightArrowSpan.style.visibility = 'hidden';
   } else {
-    rightArrowSpan.style.color = 'white';
+    rightArrowSpan.style.visibility = 'visible';
   }
 
   let title = document.getElementById('title');
@@ -329,7 +321,11 @@ function syncAddButton() {
 }
 
 function syncBackground() {
-  document.body.style.background = getBackGroundColor();
+  if (lists.areAllTasksDone()) {
+    document.body.style.background = 'var(--bg-done)';
+  } else {
+    document.body.style.background = 'var(--bg-not-done)';
+  }
 }
 
 // Lists
