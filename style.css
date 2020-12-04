@@ -86,7 +86,14 @@ body {
   font-size: 24px;
 }
 
-#move-dialog {
+#import-export {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 16px 16px 16px 16px;
+}
+
+#move-dialog, #ie-dialog {
   position: fixed;
   top: 50%;
   left: 50%;

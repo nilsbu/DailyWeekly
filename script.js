@@ -179,6 +179,28 @@ function showMoveDialog(id) {
   document.body.appendChild(dialog);
 }
 
+function toggleImportExportDialog() {
+  let dialog = document.getElementById('ie-dialog');
+  if (dialog == undefined) {
+    dialog = document.createElement('div');
+    dialog.setAttribute('id', 'ie-dialog');
+
+    let textArea = document.createElement('textarea');
+    textArea.setAttribute('rows', '10');
+    textArea.setAttribute('cols', '40');
+
+    textArea.value = JSON.stringify(lists.getJsonConform());
+
+    dialog.appendChild(textArea);
+    document.body.appendChild(dialog);
+  } else {
+    lists.load(JSON.parse(dialog.firstChild.value));
+    dialog.parentNode.removeChild(dialog);
+    syncInterface();
+    lists.save();
+  }
+}
+
 // Next day management
 
 function isDayOver() {
@@ -220,6 +242,7 @@ function syncInterface() {
   syncTaskList();
   syncAddButton();
   syncBackground();
+  syncImportExport();
 }
 
 function syncTitleBar() {
@@ -328,6 +351,15 @@ function syncBackground() {
   }
 }
 
+function syncImportExport() {
+  let ie = document.getElementById('import-export');
+  if (editMode) {
+    ie.style.visibility = 'visible';
+  } else {
+    ie.style.visibility = 'hidden';
+  }
+}
+
 // Lists
 
 class Lists {
@@ -345,14 +377,18 @@ class Lists {
     this.store.onload = ls => {this.load(ls); syncInterface()};
   }
 
-  save() {
+  getJsonConform() {
     let jsonConform = [];
 
     for (const name in this.lists) {
       jsonConform.push({'name': name, 'tasks': this.lists[name]});
     }
 
-    this.store.storeLists({'lists': jsonConform});
+    return {'lists': jsonConform};
+  }
+
+  save() {
+    this.store.storeLists(this.getJsonConform());
   }
 
   load(lists) {
