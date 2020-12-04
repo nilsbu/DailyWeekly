@@ -201,6 +201,47 @@ function toggleImportExportDialog() {
   }
 }
 
+function showCountDialog(id) {
+  const task = lists.getCurrentTasks()[id.substring(5)];
+
+  let dialog = document.createElement('div');
+  dialog.setAttribute('id', 'count-dialog');
+
+  let done = document.createElement('input');
+  done.setAttribute('class', 'num-field');
+  done.value = +task.done;
+  dialog.appendChild(done);
+
+  dialog.appendChild(document.createTextNode('/'));
+
+  let total = document.createElement('input');
+  total.setAttribute('class', 'num-field');
+  if (task.total == undefined) {
+    total.value = 1;
+  } else {
+    total.value = +task.total;
+  }
+  dialog.appendChild(total);
+
+  let ok = document.createElement('span');
+  ok.setAttribute('onclick', `setCount('${id}');`);
+  ok.appendChild(document.createTextNode('ok'));
+  dialog.appendChild(ok);
+
+  document.body.appendChild(dialog);
+}
+
+function setCount(id) {
+  let task = lists.getCurrentTasks()[id.substring(5)];
+  const dialog = document.getElementById('count-dialog');
+  task.done = dialog.childNodes[0].value;
+  task.total = dialog.childNodes[2].value;
+
+  dialog.parentNode.removeChild(dialog);
+  syncInterface();
+  lists.save();
+}
+
 // Next day management
 
 function isDayOver() {
@@ -300,13 +341,23 @@ function syncTaskList() {
     newTask.setAttribute('id', `task-${id++}`);
     newTask.setAttribute('width', '100%');
     newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
-    if (task.done) {
+    if (task.done === true || task.done == task.total) {
       newTask.setAttribute('class', 'task-done');
     } else {
       newTask.setAttribute('class', 'task');
     }
     newTask.appendChild(document.createTextNode(task.txt));
     taskLine.appendChild(newTask);
+
+    let countButton = document.createElement('td');
+    if (editMode) {
+      countButton.setAttribute('class', 'task-button');
+      countButton.setAttribute('onclick', `showCountDialog('${newTask.id}');`);
+      countButton.appendChild(document.createTextNode('#'));
+    } else {
+      countButton.setAttribute('class', 'task-button-inactive');
+    }
+    taskLine.appendChild(countButton);
 
     let moveButton = document.createElement('td');
     if (editMode) {
@@ -465,7 +516,7 @@ class Lists {
     }
 
     for (const task of tasks) {
-      if (task.done === false) {
+      if (!(task.done === true || task.done == task.total)) {
         return false;
       }
     }
