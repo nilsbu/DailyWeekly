@@ -59,8 +59,13 @@ function finalizeTaskInput(id) {
 }
 
 function toggleFinishTask(id) {
-  const isDone = lists.getTask(id.substring(5)).done;
-  lists.setTaskDone(id.substring(5), !isDone);
+  const nid = id.substring(5);
+  const task = lists.getTask(nid);
+  if (task.done == task.total) {
+    lists.setTaskDone(nid, task.done - 1);
+  } else {
+    lists.setTaskDone(nid, parseInt(task.done) + 1);
+  }
 
   syncInterface();
   lists.save();
@@ -72,10 +77,10 @@ function moveTask(id, list) {
 
   if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
     // copy
-    lists.addTask(task.txt, task.done, task.id, list);
+    lists.addTask(task.txt, 0, 1, task.id, list);
   } else {
     // move
-    lists.addTask(task.txt, task.done, task.parent, list);
+    lists.addTask(task.txt, task.done, task.total, task.parent, list);
     lists.removeTask(nid);
   }
 
@@ -341,7 +346,7 @@ function syncTaskList() {
     newTask.setAttribute('id', `task-${id++}`);
     newTask.setAttribute('width', '100%');
     newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
-    if (task.done === true || task.done == task.total) {
+    if (task.done == task.total) {
       newTask.setAttribute('class', 'task-done');
     } else {
       newTask.setAttribute('class', 'task');
@@ -449,9 +454,10 @@ class Lists {
 
     for (const list of lists.lists) {
       if (this.lists[list.name] != null) {
-        this.lists[list.name] = list.tasks;
-
+        this.lists[list.name] = [];
         for (const task of list.tasks) {
+          this.lists[list.name].push(this.copyTask(task));
+
           if (task.id != undefined && this.nextId < task.id + 1) {
             this.nextId = task.id + 1;
           }
@@ -460,15 +466,28 @@ class Lists {
     }
   }
 
+  copyTask(task) {
+    console.log(task);
+    let newTask = {
+      'id': task.id,
+      'txt': task.txt,
+      'parent': task.parent,
+      'done': +task.done,
+      'total': task.total == undefined ? 1 : task.total
+    };
+
+    return newTask;
+  }
+
   getCurrentTasks() {
     return this.lists[this.current];
   }
 
-  addTask(txt, done=false, parent=null, list=null) {
+  addTask(txt, done=0, total = 1, parent=null, list=null) {
     if (txt == '') {
       return false;
     }
-    let task = {'id': this.nextId++, 'txt': txt, 'done': done};
+    let task = {'id': this.nextId++, 'txt': txt, 'done': done, 'total': total};
     if (parent != null) {
       task.parent = parent;
     }
@@ -486,16 +505,17 @@ class Lists {
     this.getCurrentTasks().splice(id, 1);
   }
 
-  setTaskDone(id, isDone) {
+  setTaskDone(id, done) {
     let task = this.getCurrentTasks()[id];
-    task.done = isDone;
+    const dd = done - task.done;
+    task.done = done;
 
     if (task.parent != undefined) {
       for (const name in this.lists) {
         let list = this.lists[name];
         for (let t of list) {
           if (t.id == task.parent) {
-            t.done = isDone;
+            t.done = parseInt(t.done) + dd;
             break;
           }
         }
