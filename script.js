@@ -351,7 +351,11 @@ function syncTaskList() {
     } else {
       newTask.setAttribute('class', 'task');
     }
-    newTask.appendChild(document.createTextNode(task.txt));
+    let txt = task.txt;
+    if (task.total > 1) {
+      txt += ` (${task.done}/${task.total})`;
+    }
+    newTask.appendChild(document.createTextNode(txt));
     taskLine.appendChild(newTask);
 
     let countButton = document.createElement('td');
