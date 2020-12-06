@@ -11,6 +11,12 @@ function addTask() {
   let input = document.createElement('input');
   input.setAttribute('class', 'task-input');
   input.setAttribute('onfocusout', 'createTask();');
+  input.addEventListener('keyup', ({key}) => {
+    if (key === "Enter") {
+      document.activeElement.blur();
+      addTask();
+    }
+  });
 
   taskInput.appendChild(input);
   taskLine.appendChild(taskInput);
@@ -44,6 +50,11 @@ function addTaskInput(id, txt) {
   let input = document.createElement('input');
   input.setAttribute('class', 'task-input');
   input.setAttribute('onfocusout', `finalizeTaskInput('${id}');`);
+  input.addEventListener('keyup', ({key}) => {
+    if (key === "Enter") {
+      document.activeElement.blur();
+    }
+  });
   input.value = txt;
 
   task.appendChild(input);
