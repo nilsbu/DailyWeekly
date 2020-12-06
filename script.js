@@ -70,8 +70,13 @@ function finalizeTaskInput(id) {
 }
 
 function toggleFinishTask(id) {
-  const isDone = lists.getTask(id.substring(5)).done;
-  lists.setTaskDone(id.substring(5), !isDone);
+  const nid = id.substring(5);
+  const task = lists.getTask(nid);
+  if (task.done == task.total) {
+    lists.setTaskDone(nid, task.done - 1);
+  } else {
+    lists.setTaskDone(nid, parseInt(task.done) + 1);
+  }
 
   syncInterface();
   lists.save();
@@ -83,7 +88,7 @@ function moveTask(id, list) {
 
   if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
     // copy
-    lists.addTask(task.txt, task.done, task.id, list);
+    lists.addTask(task.txt, 0, 1, task.id, list);
   } else {
     // move
     lists.lists[list].push(task);
@@ -212,6 +217,47 @@ function toggleImportExportDialog() {
   }
 }
 
+function showCountDialog(id) {
+  const task = lists.getCurrentTasks()[id.substring(5)];
+
+  let dialog = document.createElement('div');
+  dialog.setAttribute('id', 'count-dialog');
+
+  let done = document.createElement('input');
+  done.setAttribute('class', 'num-field');
+  done.value = +task.done;
+  dialog.appendChild(done);
+
+  dialog.appendChild(document.createTextNode('/'));
+
+  let total = document.createElement('input');
+  total.setAttribute('class', 'num-field');
+  if (task.total == undefined) {
+    total.value = 1;
+  } else {
+    total.value = +task.total;
+  }
+  dialog.appendChild(total);
+
+  let ok = document.createElement('span');
+  ok.setAttribute('onclick', `setCount('${id}');`);
+  ok.appendChild(document.createTextNode('ok'));
+  dialog.appendChild(ok);
+
+  document.body.appendChild(dialog);
+}
+
+function setCount(id) {
+  let task = lists.getCurrentTasks()[id.substring(5)];
+  const dialog = document.getElementById('count-dialog');
+  task.done = dialog.childNodes[0].value;
+  task.total = dialog.childNodes[2].value;
+
+  dialog.parentNode.removeChild(dialog);
+  syncInterface();
+  lists.save();
+}
+
 // Next day management
 
 function isDayOver() {
@@ -311,13 +357,27 @@ function syncTaskList() {
     newTask.setAttribute('id', `task-${id++}`);
     newTask.setAttribute('width', '100%');
     newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
-    if (task.done) {
+    if (task.done == task.total) {
       newTask.setAttribute('class', 'task-done');
     } else {
       newTask.setAttribute('class', 'task');
     }
-    newTask.appendChild(document.createTextNode(task.txt));
+    let txt = task.txt;
+    if (task.total > 1) {
+      txt += ` (${task.done}/${task.total})`;
+    }
+    newTask.appendChild(document.createTextNode(txt));
     taskLine.appendChild(newTask);
+
+    let countButton = document.createElement('td');
+    if (editMode) {
+      countButton.setAttribute('class', 'task-button');
+      countButton.setAttribute('onclick', `showCountDialog('${newTask.id}');`);
+      countButton.appendChild(document.createTextNode('#'));
+    } else {
+      countButton.setAttribute('class', 'task-button-inactive');
+    }
+    taskLine.appendChild(countButton);
 
     let moveButton = document.createElement('td');
     if (editMode) {
@@ -409,9 +469,10 @@ class Lists {
 
     for (const list of lists.lists) {
       if (this.lists[list.name] != null) {
-        this.lists[list.name] = list.tasks;
-
+        this.lists[list.name] = [];
         for (const task of list.tasks) {
+          this.lists[list.name].push(this.copyTask(task));
+
           if (task.id != undefined && this.nextId < task.id + 1) {
             this.nextId = task.id + 1;
           }
@@ -420,15 +481,28 @@ class Lists {
     }
   }
 
+  copyTask(task) {
+    console.log(task);
+    let newTask = {
+      'id': task.id,
+      'txt': task.txt,
+      'parent': task.parent,
+      'done': +task.done,
+      'total': task.total == undefined ? 1 : task.total
+    };
+
+    return newTask;
+  }
+
   getCurrentTasks() {
     return this.lists[this.current];
   }
 
-  addTask(txt, done=false, parent=null, list=null) {
+  addTask(txt, done=0, total = 1, parent=null, list=null) {
     if (txt == '') {
       return false;
     }
-    let task = {'id': this.nextId++, 'txt': txt.trim(), 'done': done};
+    let task = {'id': this.nextId++, 'txt': txt.trim(), 'done': done, 'total': total};
     if (parent != null) {
       task.parent = parent;
     }
@@ -446,16 +520,17 @@ class Lists {
     this.getCurrentTasks().splice(id, 1);
   }
 
-  setTaskDone(id, isDone) {
+  setTaskDone(id, done) {
     let task = this.getCurrentTasks()[id];
-    task.done = isDone;
+    const dd = done - task.done;
+    task.done = done;
 
     if (task.parent != undefined) {
       for (const name in this.lists) {
         let list = this.lists[name];
         for (let t of list) {
           if (t.id == task.parent) {
-            t.done = isDone;
+            t.done = Math.min(t.total, parseInt(t.done) + dd);
             break;
           }
         }
@@ -476,7 +551,7 @@ class Lists {
     }
 
     for (const task of tasks) {
-      if (task.done === false) {
+      if (!(task.done === true || task.done == task.total)) {
         return false;
       }
     }

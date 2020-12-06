@@ -75,8 +75,8 @@ body {
 }
 
 .task-button {
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .task-button-inactive {
@@ -93,7 +93,7 @@ body {
   padding: 16px 16px 16px 16px;
 }
 
-#move-dialog, #ie-dialog {
+#move-dialog, #ie-dialog, #count-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -113,4 +113,8 @@ body {
   height: 50px;
   vertical-align: middle;
   text-align: center;
+}
+
+.num-field {
+  width: 20px;
 }
