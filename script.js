@@ -31,7 +31,8 @@ function createTask() {
 function taskClicked(id) {
   if (editMode) {
     let task = document.getElementById(id);
-    const txt = task.textContent;
+    // const txt = task.textContent;
+    const txt = lists.getCurrentTasks()[id.substring(5)].txt;
     task.innerHTML = "";
     addTaskInput(id, txt);
   } else {
