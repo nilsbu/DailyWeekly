@@ -86,7 +86,7 @@ function moveTask(id, list) {
     lists.addTask(task.txt, task.done, task.id, list);
   } else {
     // move
-    lists.addTask(task.txt, task.done, task.parent, list);
+    lists.lists[list].push(task);
     lists.removeTask(nid);
   }
 
