@@ -52,7 +52,7 @@ function addTaskInput(id, txt) {
 
 function finalizeTaskInput(id) {
   let task = document.getElementById(id);
-  lists.getCurrentTasks()[id.substring(5)].txt = task.firstChild.value;
+  lists.getCurrentTasks()[id.substring(5)].txt = task.firstChild.value.trim();
 
   syncInterface();
   lists.save();
@@ -417,7 +417,7 @@ class Lists {
     if (txt == '') {
       return false;
     }
-    let task = {'id': this.nextId++, 'txt': txt, 'done': done};
+    let task = {'id': this.nextId++, 'txt': txt.trim(), 'done': done};
     if (parent != null) {
       task.parent = parent;
     }
