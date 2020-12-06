@@ -519,7 +519,7 @@ class Lists {
         let list = this.lists[name];
         for (let t of list) {
           if (t.id == task.parent) {
-            t.done = Math.min(task.total, parseInt(t.done) + dd);
+            t.done = Math.min(t.total, parseInt(t.done) + dd);
             break;
           }
         }
