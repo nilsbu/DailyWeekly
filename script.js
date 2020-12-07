@@ -30,6 +30,7 @@ function createTask() {
   const input = task.getElementsByClassName('task-input')[0];
 
   lists.addTask(input.value);
+  lists.sortLists();
   syncInterface();
   lists.save();
 }
@@ -65,6 +66,7 @@ function finalizeTaskInput(id) {
   let task = document.getElementById(id);
   lists.getCurrentTasks()[id.substring(5)].txt = task.firstChild.value.trim();
 
+  lists.sortLists();
   syncInterface();
   lists.save();
 }
@@ -78,6 +80,7 @@ function toggleFinishTask(id) {
     lists.setTaskDone(nid, parseInt(task.done) + 1);
   }
 
+  lists.sortLists();
   syncInterface();
   lists.save();
 }
@@ -102,6 +105,7 @@ function moveTask(id, list) {
 
   editMode = false;
 
+  lists.sortLists();
   syncInterface();
   lists.save();
 }
@@ -364,8 +368,8 @@ function isDayOver() {
         lists.nextWeek();
       }
 
-      lists.save();
       syncInterface();
+      lists.save();
     }
     store.storeLastDayOverCheck(thisDayOverCheck);
   }
@@ -560,6 +564,8 @@ class Lists {
         }
       }
     }
+
+    this.sortLists();
   }
 
   copyTask(task) {
@@ -652,6 +658,22 @@ class Lists {
     this.lists['w1'] = [];
 
     this.current = 'd0';
+  }
+
+  sortLists() {
+    let f = (a, b) => {
+      if (a.done == a.total && b.done != b.total) {
+        return 1;
+      } else if (a.done != a.total && b.done == b.total) {
+        return -1;
+      }
+
+      return a.txt.localeCompare(b.txt);
+    };
+
+    for (const key in this.lists) {
+      this.lists[key].sort(f);
+    }
   }
 }
 
