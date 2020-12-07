@@ -258,6 +258,87 @@ function setCount(id) {
   lists.save();
 }
 
+// Swipe
+class Swipe {
+  constructor(element) {
+    this.xDown = null;
+    this.yDown = null;
+    this.element = typeof(element) === 'string' ? document.querySelector(element) : element;
+
+    this.element.addEventListener('touchstart', function(evt) {
+      this.xDown = evt.touches[0].clientX;
+      this.yDown = evt.touches[0].clientY;
+    }.bind(this), false);
+  }
+
+  onLeft(callback) {
+    this.onLeft = callback;
+    return this;
+  }
+
+  onRight(callback) {
+    this.onRight = callback;
+    return this;
+  }
+
+  onUp(callback) {
+    this.onUp = callback;
+    return this;
+  }
+
+  onDown(callback) {
+    this.onDown = callback;
+    return this;
+  }
+
+  handleTouchMove(evt) {
+    if (!this.xDown || !this.yDown) {
+      return;
+    }
+
+    var xUp = evt.touches[0].clientX;
+    var yUp = evt.touches[0].clientY;
+
+    this.xDiff = this.xDown - xUp;
+    this.yDiff = this.yDown - yUp;
+  }
+
+  handleTouchEnd(evt) {
+    if (!this.xDiff || !this.yDiff) {
+      return;
+    }
+
+    if (Math.abs(this.xDiff) > Math.abs(this.yDiff)) { // Most significant.
+      if (this.xDiff > 0) {
+        this.onLeft();
+      } else {
+        this.onRight();
+      }
+    } else {
+      if (this.yDiff > 0) {
+        this.onUp();
+      } else {
+        this.onDown();
+      }
+    }
+
+    // Reset values.
+    this.xDown = null;
+    this.yDown = null;
+    this.xDiff = null;
+    this.yDiff = null;
+  }
+
+  run() {
+    this.element.addEventListener('touchmove', function(evt) {
+      this.handleTouchMove(evt).bind(this);
+    }.bind(this), false);
+    this.element.addEventListener('touchend', function(evt) {
+      this.handleTouchEnd(evt).bind(this);
+    }.bind(this), false);
+  }
+}
+
 // Next day management
 
 function isDayOver() {
@@ -482,7 +563,6 @@ class Lists {
   }
 
   copyTask(task) {
-    console.log(task);
     let newTask = {
       'id': task.id,
       'txt': task.txt,
@@ -613,5 +693,12 @@ var moveId = null;
 function init() {
   store.loadListsAsync();
   isDayOver();
+
+  var swipeBody = new Swipe(document.body); // TODO: should only accept when not over task
+  swipeBody.onLeft(function() { nextList(); });
+  swipeBody.onRight(function() { previousList(); });
+  swipeBody.onUp(function() { if(lists.current.substring(0, 1) === 'd') {lists.current = 'w0'; syncInterface();} });
+  swipeBody.onDown(function() { if(lists.current.substring(0, 1) === 'w') {lists.current = 'd0'; syncInterface();} });
+  swipeBody.run();
 }
 window.addEventListener('load', init)
