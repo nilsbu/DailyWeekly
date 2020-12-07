@@ -37,7 +37,6 @@ function createTask() {
 function taskClicked(id) {
   if (editMode) {
     let task = document.getElementById(id);
-    // const txt = task.textContent;
     const txt = lists.getCurrentTasks()[id.substring(5)].txt;
     task.innerHTML = "";
     addTaskInput(id, txt);
@@ -277,7 +276,7 @@ function isDayOver() {
         lists.nextDay();
       }
 
-      const lastDoW = new Date(lastDayOverCheck).getDay();
+      const lastDoW = (new Date(lastDayOverCheck).getDay() + 6) % 7; // Week starts on Monday
       const thisDoW = lastDoW + (thisDay - lastDay);
       const weeks = Math.floor(thisDoW / 7);
       for (let i = 0; i < Math.min(3, weeks); i++){
