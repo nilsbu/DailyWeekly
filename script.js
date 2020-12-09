@@ -94,7 +94,12 @@ function moveTask(id, list) {
 
   if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
     // copy
-    lists.addTask(task.txt, 0, 1, task.id, list);
+    let txt = task.txt;
+    if (task.subof != null) {
+      const parent = lists.getTaskById(task.subof);
+      txt = parent.txt + ": " + task.txt;
+    }
+    lists.addTask(txt, 0, 1, task.id, list);
   } else {
     // move
     lists.lists[list].push(task);
