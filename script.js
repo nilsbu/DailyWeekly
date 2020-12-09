@@ -21,7 +21,13 @@ function addTask(subof=null) {
 
   taskInput.appendChild(input);
   taskLine.appendChild(taskInput);
-  taskList.appendChild(taskLine);
+  if (subof != null) {
+    const before = document.getElementById(subof).parentNode.nextSibling;
+    taskList.insertBefore(taskLine, before);
+  } else {
+    taskList.appendChild(taskLine);
+  }
+
   input.focus();
 }
 
@@ -680,6 +686,17 @@ class Lists {
     this.lists['w1'] = [];
 
     this.current = 'd0';
+  }
+
+  getIndexInCurrentList(id) {
+    const tasks = this.getCurrentTasks();
+    for (let idx = 0; idx < tasks.length; idx++) {
+      if (tasks[idx].id == id) {
+        return idx;
+      }
+    }
+
+    return -1;
   }
 
   getTaskById(id) {
