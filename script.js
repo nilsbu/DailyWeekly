@@ -1,6 +1,6 @@
 // Callbacks
 
-function addTask() {
+function addTask(subof=null) {
   let taskList = document.getElementById('task-list');
 
   let taskLine = document.createElement('tr');
@@ -10,9 +10,10 @@ function addTask() {
 
   let input = document.createElement('input');
   input.setAttribute('class', 'task-input');
-  input.setAttribute('onfocusout', 'createTask();');
+  const subofs = subof == null ? 'null' : `"${subof}"`;
+  input.setAttribute('onfocusout', `createTask('task-${lists.getCurrentTasks().length}', ${subofs})`);
   input.addEventListener('keyup', ({key}) => {
-    if (key === "Enter") {
+    if (key === 'Enter') {
       document.activeElement.blur();
       addTask();
     }
@@ -20,16 +21,24 @@ function addTask() {
 
   taskInput.appendChild(input);
   taskLine.appendChild(taskInput);
-  taskList.appendChild(taskLine);
+  if (subof != null) {
+    const before = document.getElementById(subof).parentNode.nextSibling;
+    taskList.insertBefore(taskLine, before);
+  } else {
+    taskList.appendChild(taskLine);
+  }
+
   input.focus();
 }
 
-function createTask() {
-  const taskList = document.getElementById('task-list');
-  const task = taskList.lastChild;
+function createTask(id, subof=null) {
+  let task = document.getElementById(id);
   const input = task.getElementsByClassName('task-input')[0];
 
   lists.addTask(input.value);
+  if (subof != null) {
+    lists.getCurrentTasks()[lists.getCurrentTasks().length - 1].subof = lists.getCurrentTasks()[subof.substring(5)].id;
+  }
   lists.sortLists();
   syncInterface();
   lists.save();
@@ -39,7 +48,7 @@ function taskClicked(id) {
   if (editMode) {
     let task = document.getElementById(id);
     const txt = lists.getCurrentTasks()[id.substring(5)].txt;
-    task.innerHTML = "";
+    task.innerHTML = '';
     addTaskInput(id, txt);
   } else {
     toggleFinishTask(id);
@@ -52,7 +61,7 @@ function addTaskInput(id, txt) {
   input.setAttribute('class', 'task-input');
   input.setAttribute('onfocusout', `finalizeTaskInput('${id}');`);
   input.addEventListener('keyup', ({key}) => {
-    if (key === "Enter") {
+    if (key === 'Enter') {
       document.activeElement.blur();
     }
   });
@@ -91,7 +100,12 @@ function moveTask(id, list) {
 
   if (lists.current.substring(0, 1) == 'w' && list.substring(0, 1) == 'd') {
     // copy
-    lists.addTask(task.txt, 0, 1, task.id, list);
+    let txt = task.txt;
+    if (task.subof != null) {
+      const parent = lists.getTaskById(task.subof);
+      txt = parent.txt + ': ' + task.txt;
+    }
+    lists.addTask(txt, 0, 1, task.id, list);
   } else {
     // move
     lists.lists[list].push(task);
@@ -448,6 +462,9 @@ function syncTaskList() {
       newTask.setAttribute('class', 'task');
     }
     let txt = task.txt;
+    if (task.subof != null) {
+        txt = ' - ' + txt;
+    }
     if (task.total > 1) {
       txt += ` (${task.done}/${task.total})`;
     }
@@ -473,6 +490,19 @@ function syncTaskList() {
       moveButton.setAttribute('class', 'task-button-inactive');
     }
     taskLine.appendChild(moveButton);
+
+    let addButton = document.createElement('td');
+    if (editMode) {
+      addButton.setAttribute('class', 'task-button');
+      addButton.setAttribute('onclick', `addTask('${newTask.id}');`);
+      addButton.innerHTML = '&#65291;';
+      if (task.subof != null) {
+        addButton.style.visibility = 'hidden';
+      }
+    } else {
+      addButton.setAttribute('class', 'task-button-inactive');
+    }
+    taskLine.appendChild(addButton);
 
     let removeButton = document.createElement('td');
     if (editMode) {
@@ -573,6 +603,7 @@ class Lists {
       'id': task.id,
       'txt': task.txt,
       'parent': task.parent,
+      'subof': task.subof,
       'done': +task.done,
       'total': task.total == undefined ? 1 : task.total
     };
@@ -660,15 +691,63 @@ class Lists {
     this.current = 'd0';
   }
 
+  getIndexInCurrentList(id) {
+    const tasks = this.getCurrentTasks();
+    for (let idx = 0; idx < tasks.length; idx++) {
+      if (tasks[idx].id == id) {
+        return idx;
+      }
+    }
+
+    return -1;
+  }
+
+  getTaskById(id) {
+    for (const key in this.lists) {
+      for (const task of this.lists[key]) {
+        if (task.id == id) {
+          return task;
+        }
+      }
+    }
+
+    return null;
+  }
+
   sortLists() {
     let f = (a, b) => {
-      if (a.done == a.total && b.done != b.total) {
+      if (a.subof == b.subof) {
+        if (a.done == a.total && b.done != b.total) {
+          return 1;
+        } else if (a.done != a.total && b.done == b.total) {
+          return -1;
+        }
+
+        return a.txt.localeCompare(b.txt);
+      }
+
+      let xa = a;
+      let xb = b;
+      if (a.subof != null) {
+        if (a.subof == b.id) {
+          return 1;
+        }
+        xa = this.getTaskById(a.subof);
+      }
+      if (b.subof != null) {
+        if (b.subof == a.id) {
+          return -1;
+        }
+        xb = this.getTaskById(b.subof);
+      }
+
+      if (xa.done == xa.total && xb.done != xb.total) {
         return 1;
-      } else if (a.done != a.total && b.done == b.total) {
+      } else if (xa.done != xa.total && xb.done == xb.total) {
         return -1;
       }
 
-      return a.txt.localeCompare(b.txt);
+      return xa.txt.localeCompare(xb.txt);
     };
 
     for (const key in this.lists) {
