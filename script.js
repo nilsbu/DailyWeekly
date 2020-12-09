@@ -48,7 +48,7 @@ function taskClicked(id) {
   if (editMode) {
     let task = document.getElementById(id);
     const txt = lists.getCurrentTasks()[id.substring(5)].txt;
-    task.innerHTML = "";
+    task.innerHTML = '';
     addTaskInput(id, txt);
   } else {
     toggleFinishTask(id);
@@ -61,7 +61,7 @@ function addTaskInput(id, txt) {
   input.setAttribute('class', 'task-input');
   input.setAttribute('onfocusout', `finalizeTaskInput('${id}');`);
   input.addEventListener('keyup', ({key}) => {
-    if (key === "Enter") {
+    if (key === 'Enter') {
       document.activeElement.blur();
     }
   });
@@ -103,7 +103,7 @@ function moveTask(id, list) {
     let txt = task.txt;
     if (task.subof != null) {
       const parent = lists.getTaskById(task.subof);
-      txt = parent.txt + ": " + task.txt;
+      txt = parent.txt + ': ' + task.txt;
     }
     lists.addTask(txt, 0, 1, task.id, list);
   } else {
@@ -496,6 +496,9 @@ function syncTaskList() {
       addButton.setAttribute('class', 'task-button');
       addButton.setAttribute('onclick', `addTask('${newTask.id}');`);
       addButton.innerHTML = '&#65291;';
+      if (task.subof != null) {
+        addButton.style.visibility = 'hidden';
+      }
     } else {
       addButton.setAttribute('class', 'task-button-inactive');
     }
