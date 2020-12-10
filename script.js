@@ -322,7 +322,7 @@ class Swipe {
   }
 
   handleTouchEnd(evt) {
-    if (!this.xDiff || !this.yDiff) {
+    if (!this.xDiff || !this.yDiff || !this.xDown || !this.yDown) {
       return;
     }
 
@@ -347,12 +347,22 @@ class Swipe {
     this.yDiff = null;
   }
 
+  handleTouchCancel(evt) {
+    this.xDown = null;
+    this.yDown = null;
+    this.xDiff = null;
+    this.yDiff = null;
+  }
+
   run() {
     this.element.addEventListener('touchmove', function(evt) {
       this.handleTouchMove(evt).bind(this);
     }.bind(this), false);
     this.element.addEventListener('touchend', function(evt) {
       this.handleTouchEnd(evt).bind(this);
+    }.bind(this), false);
+    this.element.addEventListener('touchcancel', function(evt) {
+      this.handleTouchCancel(evt).bind(this);
     }.bind(this), false);
   }
 }
@@ -801,5 +811,6 @@ function init() {
   swipeBody.onUp(function() { if(lists.current.substring(0, 1) === 'd') {lists.current = 'w0'; editMode = false; syncInterface();} });
   swipeBody.onDown(function() { if(lists.current.substring(0, 1) === 'w') {lists.current = 'd0'; editMode = false; syncInterface();} });
   swipeBody.run();
+  window.addEventListener('focus', () => {swipeBody.xDown = null;});
 }
 window.addEventListener('load', init)
