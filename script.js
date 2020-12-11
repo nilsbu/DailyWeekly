@@ -821,8 +821,8 @@ function init() {
   var swipeBody = new Swipe(document.body); // TODO: should only accept when not over task
   swipeBody.onLeft(function() { nextList(); });
   swipeBody.onRight(function() { previousList(); });
-  swipeBody.onUp(function() { if(lists.current.substring(0, 1) === 'd') {lists.current = 'w0'; editMode = false; syncInterface();} });
-  swipeBody.onDown(function() { if(lists.current.substring(0, 1) === 'w') {lists.current = 'd0'; editMode = false; syncInterface();} });
+  // swipeBody.onUp(function() { if(lists.current.substring(0, 1) === 'd') {lists.current = 'w0'; editMode = false; syncInterface();} });
+  // swipeBody.onDown(function() { if(lists.current.substring(0, 1) === 'w') {lists.current = 'd0'; editMode = false; syncInterface();} });
   swipeBody.run();
   window.addEventListener('focus', () => {swipeBody.xDown = null;});
 }
