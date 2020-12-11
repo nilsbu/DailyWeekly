@@ -459,13 +459,17 @@ function syncTaskList() {
     taskList.removeChild(taskList.lastChild);
   }
 
+  const isListLocked = (lists.current.substring(1, 2) == '-');
+
   let id = 0;
   for (const task of list) {
     let taskLine = document.createElement('tr');
     let newTask = document.createElement('td');
     newTask.setAttribute('id', `task-${id++}`);
     newTask.setAttribute('width', '100%');
-    newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
+    if (!isListLocked) {
+      newTask.setAttribute('onclick', `taskClicked('${newTask.id}');`);
+    }
     if (task.done == task.total) {
       newTask.setAttribute('class', 'task-done');
     } else {
@@ -486,6 +490,9 @@ function syncTaskList() {
       countButton.setAttribute('class', 'task-button');
       countButton.setAttribute('onclick', `showCountDialog('${newTask.id}');`);
       countButton.appendChild(document.createTextNode('#'));
+      if (isListLocked) {
+        countButton.style.visibility = 'hidden';
+      }
     } else {
       countButton.setAttribute('class', 'task-button-inactive');
     }
@@ -499,6 +506,9 @@ function syncTaskList() {
     } else {
       moveButton.setAttribute('class', 'task-button-inactive');
     }
+    if (isListLocked && task.done == task.total) {
+      moveButton.style.visibility = 'hidden';
+    }
     taskLine.appendChild(moveButton);
 
     let addButton = document.createElement('td');
@@ -506,7 +516,7 @@ function syncTaskList() {
       addButton.setAttribute('class', 'task-button');
       addButton.setAttribute('onclick', `addTask('${newTask.id}');`);
       addButton.innerHTML = '&#65291;';
-      if (task.subof != null) {
+      if (task.subof != null || isListLocked) {
         addButton.style.visibility = 'hidden';
       }
     } else {
@@ -519,6 +529,9 @@ function syncTaskList() {
       removeButton.setAttribute('class', 'task-button');
       removeButton.setAttribute('onclick', `removeTask('${newTask.id}');`);
       removeButton.appendChild(document.createTextNode('X'));
+      if (isListLocked) {
+        removeButton.style.visibility = 'hidden';
+      }
     } else {
       removeButton.setAttribute('class', 'task-button-inactive');
     }
